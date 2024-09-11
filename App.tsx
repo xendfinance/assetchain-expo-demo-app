@@ -18,7 +18,7 @@ import { hideAsync } from "expo-splash-screen";
 const queryClient = new QueryClient();
 
 // Get projectId at https://cloud.walletconnect.com
-const projectId = process.env.WALLECT_CONNECT_PROJECTID as string;
+const projectId = process.env.EXPO_PUBLIC_WALLECT_CONNECT_PROJECTID as string;
 
 
 const metadata = {
