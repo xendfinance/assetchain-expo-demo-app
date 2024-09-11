@@ -5,15 +5,19 @@ import {
   View,
   ScrollView,
   RefreshControl,
+  Dimensions,
 } from "react-native";
 import { useEffect, useState } from "react";
 import Icon from "@expo/vector-icons/Ionicons";
 import { ConnectedWallet } from "../components/ConnectedWallet";
 import Balance from "../components/Balance";
 import CustomText from "../components/CustomText";
-import { FONT } from "../utils/constant";
+import { FONT, USDTCONTRACT } from "../utils/constant";
 import { useAccount, useBalance, useReadContract, useToken } from "wagmi";
 import FloatingButton from "../components/FloatingButton";
+import { getTransactions } from "../api/history";
+import { Transaction } from "../utils/types";
+import { TransactionCard } from "../components/TransactionCard";
 
 export default function WalletScreen({ navigation }: any) {
   const { isConnected, address } = useAccount();
@@ -36,6 +40,7 @@ export default function WalletScreen({ navigation }: any) {
       ),
     },
   ]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   useEffect(() => {
     if (!isConnected) navigation.navigate("Home");
   }, [isConnected]);
@@ -44,12 +49,25 @@ export default function WalletScreen({ navigation }: any) {
     _balance();
   }, [data]);
 
+  useEffect(() => {
+    _gettransactions();
+    refetch();
+  }, [address]);
+
+
   function _balance() {
     if (data) {
-      const _bals = [...balances]
+      const _bals = [...balances];
       _bals[0].balance = data.formatted;
-     
+
       setBalances([..._bals]);
+    }
+  }
+
+  async function _gettransactions() {
+    if (address) {
+      const { items } = await getTransactions(address);
+      setTransactions([...items]);
     }
   }
 
@@ -57,7 +75,13 @@ export default function WalletScreen({ navigation }: any) {
     <ScrollView
       contentContainerStyle={styles.screen}
       refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />
+        <RefreshControl
+          refreshing={isLoading}
+          onRefresh={() => {
+            refetch();
+            _gettransactions();
+          }}
+        />
       }
     >
       <View>
@@ -67,6 +91,7 @@ export default function WalletScreen({ navigation }: any) {
         </View>
 
         <View style={styles.wallets}>
+          <View>
           <ScrollView>
             {balances.map((b) => (
               <Balance
@@ -79,19 +104,23 @@ export default function WalletScreen({ navigation }: any) {
               />
             ))}
           </ScrollView>
-          {/* <FlatList
-          data={balances}
-          renderItem={(b) => (
-            <Balance
-              balance={b.item.balance}
-              name={b.item.name}
-              symbol={b.item.symbol}
-              icon={b.item.icon}
-              onPress={() => {}}
+          </View>
+          
+          <View style={styles.trx}>
+            <CustomText
+              display="Activities"
+              font={FONT.SpaceMono}
+              fontSize={13}
             />
-          )}
-          keyExtractor={(i) => i.symbol}
-        /> */}
+            <ScrollView style={{ marginTop: 10 }}>
+              {transactions
+                .filter((t) => t.to.hash === USDTCONTRACT || !t.to.is_contract)
+                .slice(0, 5)
+                .map((t, i) => (
+                  <TransactionCard key={i} onPress={() => {}} trx={t} />
+                ))}
+            </ScrollView>
+          </View>
         </View>
       </View>
       <FloatingButton onPress={() => navigation.navigate("transfer")}>
@@ -111,7 +140,7 @@ const styles = StyleSheet.create({
     backgroundColor: `#1C1C26`,
     paddingTop: 20,
     paddingHorizontal: 15,
-    justifyContent: 'space-between'
+    // justifyContent: "space-between",
   },
   wallets: {
     width: "100%",
@@ -127,5 +156,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     justifyContent: "space-between",
+  },
+  trx: {
+    marginTop: 20,
+    width: "100%",
   },
 });

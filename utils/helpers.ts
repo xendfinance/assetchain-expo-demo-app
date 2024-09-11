@@ -15,3 +15,43 @@ export function isValidEthereumAddress(address: string) {
 
   return true;
 }
+
+export const fetchWithTimeout = async <T>(
+  url: string,
+  options?: RequestInit,
+  timeout: number = 30000
+): Promise<T> => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort("request timeout"),
+      timeout
+    );
+
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      let message = "";
+      const errorString = await response.text();
+      const errorObj = JSON.parse(errorString);
+      if (Array.isArray(errorObj.message)) {
+        message = errorObj.message[0];
+      } else {
+        message = errorObj.message;
+      }
+      throw new Error(message);
+    }
+    return await response.json();
+  } catch (error: any) {
+    const message =
+      error.message.toLowerCase() === "aborted"
+        ? "Request Timeout"
+        : error.message;
+    throw new Error(message);
+  }
+};

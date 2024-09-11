@@ -22,8 +22,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
-    marginBottom: 30,
-    marginRight: 20,
+    zIndex: 1,
+    position: 'absolute',
+    bottom: 30,
+    right: 20
   },
   fab: {
     width: 60,

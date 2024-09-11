@@ -11,7 +11,7 @@ import { isValidEthereumAddress } from "../utils/helpers";
 import { parseEther } from "ethers";
 import Toast from "react-native-root-toast";
 
-const options = ["RWA", "USDT"];
+const options = ["RWA"];
 
 export default function TransferScreen({ navigation }: any) {
   const { address } = useAccount();
@@ -69,7 +69,7 @@ export default function TransferScreen({ navigation }: any) {
       const amountInWei = parseEther(state.amount);
       sendTransaction({ to: state.address as any, value: amountInWei }, {});
     } catch (error: any) {
-      console.log(error);
+      Toast.show('Something went wrong')
     }
   }
   return (
