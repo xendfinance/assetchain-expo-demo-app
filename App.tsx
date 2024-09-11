@@ -14,13 +14,13 @@ import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { hideAsync } from "expo-splash-screen";
 
-// 0. Setup queryClient
+
 const queryClient = new QueryClient();
 
-// 1. Get projectId at https://cloud.walletconnect.com
-const projectId = "fc7f1d1d60351844781d8a78306dccab";
+// Get projectId at https://cloud.walletconnect.com
+const projectId = process.env.WALLECT_CONNECT_PROJECTID as string;
 
-// 2. Create config
+
 const metadata = {
   name: "AppKit RN",
   description: "AppKit RN Example",
@@ -36,7 +36,6 @@ const chains = [assetChainTestnet] as const;
 
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
-// 3. Create modal
 createWeb3Modal({
   projectId,
   wagmiConfig,
