@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "assetchain-expo-demo-app",
+    "name": "AssetChain Demo App",
     "slug": "assetchain-expo-demo-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -22,6 +22,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
