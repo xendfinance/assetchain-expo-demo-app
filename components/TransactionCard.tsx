@@ -8,7 +8,7 @@ import { formatEther, formatUnits } from "ethers";
 type Props = {
   trx: Transaction;
   onPress: (hash: string) => void;
-  address?: string
+  address: string
 };
 
 export function TransactionCard(props: Props) {
@@ -16,7 +16,7 @@ export function TransactionCard(props: Props) {
   const isNative = !props.trx.to.is_contract;
   const symbol = isNative ? "RWA" : "USDT";
   const value = isNative ? formatEther(props.trx.value).toString() : formatUnits((props.trx.decoded_input as any).parameters[1].value, 18);
-  const isReceived = props.trx.to.hash === '0x13890B3639DE690CD965b92C7fcc97ebdAd7F535'
+  const isReceived = props.trx.to.hash === props.address
   const icon = isReceived ? 'south-west' : 'north-east'
   const method = isNative ? isReceived ? 'RECEIVED' : 'SENT' : props.trx.method.toUpperCase()
   return (

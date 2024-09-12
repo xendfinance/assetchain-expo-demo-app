@@ -55,3 +55,16 @@ export const fetchWithTimeout = async <T>(
     throw new Error(message);
   }
 };
+
+export function shortenEthAddress(address: string) {
+  if (typeof address !== 'string') return '';
+  return address.slice(0, 6) + '...' + address.slice(-4);
+}
+
+export function capitalizeFirstLetter(value: string) {
+  return value
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+}
+

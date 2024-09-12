@@ -6,3 +6,9 @@ export async function getTransactions(address: string) {
     `https://scan-testnet.assetchain.org/api/v2/addresses/${address}/transactions`
   );
 }
+
+export async function getTransactionByhash(hash: string) {
+    return await fetchWithTimeout<Transaction>(
+      `https://scan-testnet.assetchain.org/api/v2/transactions/${hash}`
+    );
+  }

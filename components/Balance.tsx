@@ -17,7 +17,7 @@ export default function Balance(props: Props) {
         <CustomText display={props.name} font={FONT.SpaceMono} fontSize={16} />
       </View>
       <View>
-      <CustomText display={`${(+props.balance).toFixed(6)} ${props.symbol}`} fontWeight={'bold'} font={FONT.SpaceMono} fontSize={15} color="#A1A1B5"/>
+      <CustomText display={`${(+props.balance)} ${props.symbol}`} fontWeight={'bold'} font={FONT.SpaceMono} fontSize={15} color="#A1A1B5"/>
         {/* <ThemedText>
                 {props.symbol}
             </ThemedText> */}

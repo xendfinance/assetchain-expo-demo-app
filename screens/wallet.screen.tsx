@@ -1,11 +1,9 @@
 import {
   Image,
   StyleSheet,
-  Platform,
   View,
   ScrollView,
   RefreshControl,
-  Dimensions,
 } from "react-native";
 import { useEffect, useState } from "react";
 import Icon from "@expo/vector-icons/Ionicons";
@@ -18,6 +16,8 @@ import FloatingButton from "../components/FloatingButton";
 import { getTransactions } from "../api/history";
 import { Transaction } from "../utils/types";
 import { TransactionCard } from "../components/TransactionCard";
+import ABI from "../utils/abi.json";
+import { formatEther } from "ethers";
 
 export default function WalletScreen({ navigation }: any) {
   const { isConnected, address } = useAccount();
@@ -40,6 +40,7 @@ export default function WalletScreen({ navigation }: any) {
       ),
     },
   ]);
+  const { data: usdtBal } = useReadContract({abi:ABI, address: USDTCONTRACT, functionName: 'balanceOf', args: [address]});
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   useEffect(() => {
     if (!isConnected) navigation.navigate("Home");
@@ -47,27 +48,33 @@ export default function WalletScreen({ navigation }: any) {
 
   useEffect(() => {
     _balance();
-  }, [data]);
+  }, [data, usdtBal]);
 
   useEffect(() => {
     _gettransactions();
     refetch();
   }, [address]);
 
-
   function _balance() {
+    const _bals = [...balances];
     if (data) {
-      const _bals = [...balances];
-      _bals[0].balance = data.formatted;
-
-      setBalances([..._bals]);
+      _bals[0].balance = (+data.formatted).toFixed(6);
+      
     }
+    if (usdtBal){
+      _bals[1].balance = (+formatEther(usdtBal as any)).toFixed(2)
+    }
+    setBalances([..._bals]);
   }
 
   async function _gettransactions() {
     if (address) {
-      const { items } = await getTransactions(address);
-      setTransactions([...items]);
+      try {
+        const { items } = await getTransactions(address);
+        setTransactions([...items]);
+      } catch (error: any) {
+        console.error(error.message);
+      }
     }
   }
 
@@ -92,20 +99,20 @@ export default function WalletScreen({ navigation }: any) {
 
         <View style={styles.wallets}>
           <View>
-          <ScrollView>
-            {balances.map((b) => (
-              <Balance
-                balance={b.balance}
-                name={b.name}
-                symbol={b.symbol}
-                icon={b.icon}
-                onPress={() => {}}
-                key={b.symbol}
-              />
-            ))}
-          </ScrollView>
+            <ScrollView>
+              {balances.map((b) => (
+                <Balance
+                  balance={b.balance}
+                  name={b.name}
+                  symbol={b.symbol}
+                  icon={b.icon}
+                  onPress={() => {}}
+                  key={b.symbol}
+                />
+              ))}
+            </ScrollView>
           </View>
-          
+
           <View style={styles.trx}>
             <CustomText
               display="Activities"
@@ -117,7 +124,7 @@ export default function WalletScreen({ navigation }: any) {
                 .filter((t) => t.to.hash === USDTCONTRACT || !t.to.is_contract)
                 .slice(0, 5)
                 .map((t, i) => (
-                  <TransactionCard key={i} onPress={() => {}} trx={t} />
+                  <TransactionCard key={i} onPress={(hash) => {navigation.navigate('details', {hash})}} trx={t} address={address as any} />
                 ))}
             </ScrollView>
           </View>
